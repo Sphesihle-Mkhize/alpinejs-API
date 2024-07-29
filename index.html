@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en" x-data="app()" x-init="init">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://unpkg.com/alpinejs" defer></script>
+
+    <title>Pizza Cart</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #cc2679;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            width: 80%;
+            margin: auto;
+            padding: 20px;
+            background-color: #da3eab;
+            box-shadow: 0 0 10px rgba(150, 61, 61, 0.1);
+            border-radius: 10px;
+            overflow-y: auto;
+            max-height: 80vh;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .box {
+            background: rgba(156, 65, 149, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .textbox {
+            margin-bottom: 20px;
+        }
+
+        .textbox input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ee4b4b;
+            border-radius: 5px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 10px;
+            background: #c24999;
+            border: none;
+            color: rgb(180, 53, 123);
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #c021ab;
+        }
+
+        .logout-btn {
+            background: #dc3545;
+            padding: 5px 10px;
+            font-size: 14px;
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .logout-btn:hover {
+            background: #c82333;
+        }
+
+        .pizza-list, .featured-pizzas, .cart {
+            margin: 20px 0;
+        }
+
+        .pizza-item, .cart-item, .featured-pizza-item {
+            display: flex;
+            align-items: center;
+            border: 1px solid #58263f;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #8b3679;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .pizza-item img, .cart-item img, .featured-pizza-item img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            margin-right: 20px;
+            border-radius: 5px;
+        }
+
+        .pizza-item div, .cart-item div, .featured-pizza-item div {
+            flex: 1;
+            text-align: left;
+        }
+
+        .pizza-item button, .cart-item button, .feature-button {
+            padding: 10px 20px;
+            background-color: #c2328b;
+            color: #e750b5;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+            margin-left: 10px;
+        }
+
+        .pizza-item button:hover, .cart-item button:hover, .feature-button:hover {
+            background-color: #6e0944;
+        }
+
+        .feature-button {
+            background-color: #ffc107;
+            color: #000;
+        }
+
+        .feature-button:hover {
+            background-color: #e0a800;
+        }
+
+        .cart-item button {
+            background-color: #dc3545;
+        }
+
+        .cart-item button:hover {
+            background-color: #c82333;
+        }
+
+        .cart-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0;
+        }
+
+        .buy-button-container {
+            text-align: right;
+        }
+
+        .buy-button {
+            padding: 10px 20px;
+            background-color: #8a3477;
+            color: purple;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .buy-button:hover {
+            background-color: #88216e;
+        }
+
+        #featured-pizza-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #fa0cab;
+            margin-bottom: 20px;
+        }
+
+        .featured-pizza-item {
+            text-align: center;
+            background-color: #7e1564;
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            width: 30%; /* Adjust width as needed */
+        }
+
+        .featured-pizza-item img {
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        .cart-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .cart-table th, .cart-table td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        .cart-table th {
+            background-color: #853974;
+        }
+
+        .cart-table input {
+            width: 50px;
+            text-align: center;
+        }
+
+        .cart-table .total {
+            font-weight: bold;
+        }
+
+        .cart-table .amount-input {
+            width: 100px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Form -->
+    <div x-show="!isLoggedIn" class="container">
+        <div class="box">
+            <h2>Login</h2>
+            <form @submit.prevent="login">
+                <div class="textbox">
+                    <input type="text" placeholder="Username" x-model="username" required>
+                </div>
+                <button type="submit" class="btn">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Logout Button -->
+    <button x-show="isLoggedIn" @click="logout" class="btn logout-btn">Logout</button>
+
+    <!-- Main Content -->
+    <div class="container" x-show="isLoggedIn">
+        <!-- Cart Table -->
+        <div class="cart">
+            <h2>Cart</h2>
+            <table class="cart-table">
+                <thead>
+                    <tr>
+                        <th>Flavor</th>
+                        <th>Size</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Total</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="cart-items">
+                    <!-- Cart items will be dynamically added here -->
+                </tbody>
+            </table>
+            <div class="cart-actions">
+                <div>Total Amount: <span x-text="cartTotal"></span> ZAR</div>
+                <div>
+                    Enter Amount: <input type="number" x-model="enteredAmount" class="amount-input">
+                </div>
+                <div class="buy-button-container">
+                    <button class="buy-button" @click="checkout">Checkout</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Featured Pizzas -->
+        <div class="featured-pizzas">
+            <h2>Featured Pizzas</h2>
+            <div id="featured-pizza-list">
+                <!-- Featured pizza items will be dynamically added here -->
+            </div>
+        </div>
+
+        <!-- Pizza List -->
+        <div class="pizza-list">
+            <h2>Pizza List</h2>
+            <div id="pizza-list">
+                <!-- Pizza items will be dynamically added here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function app() {
+            return {
+                isLoggedIn: false,
+                username: '',
+                enteredAmount: 0,
+                cartItems: [],
+                featuredPizzas: [],
+                pizzas: [],
+                cartTotal: 0,
+
+                login() {
+                    this.isLoggedIn = true;
+                    this.renderFeaturedPizzas();
+                },
+                logout() {
+                    this.isLoggedIn = false;
+                    this.featuredPizzas = [];
+                    this.renderFeaturedPizzas();
+                },
+                addToCart(id, flavour, size, price) {
+                    const existingItem = this.cartItems.find(item => item.id === id);
+                    if (existingItem) {
+                        existingItem.quantity++;
+                    } else {
+                        this.cartItems.push({ id, flavour, size, price, quantity: 1 });
+                    }
+                    this.renderCartItems();
+                },
+                removeFromCart(id) {
+                    this.cartItems = this.cartItems.filter(item => item.id !== id);
+                    this.renderCartItems();
+                },
+                updateQuantity(id, change) {
+                    const item = this.cartItems.find(item => item.id === id);
+                    if (item) {
+                        item.quantity = Math.max(1, item.quantity + change);
+                        this.renderCartItems();
+                    }
+                },
+                checkout() {
+                    alert(`Proceeding to checkout...`);
+                    // Implement your checkout logic here
+                },
+                renderCartItems() {
+                    const cartItemsContainer = document.getElementById('cart-items');
+                    cartItemsContainer.innerHTML = '';
+                    this.cartTotal = 0;
+                    this.cartItems.forEach(item => {
+                        const total = item.quantity * item.price;
+                        this.cartTotal += total;
+
+                        const cartItem = document.createElement('tr');
+                        cartItem.innerHTML = `
+                            <td>${item.flavour}</td>
+                            <td>${item.size}</td>
+                            <td>${item.price} ZAR</td>
+                            <td>
+                                <button onclick="app().updateQuantity(${item.id}, -1)">-</button>
+                                <input type="number" value="${item.quantity}" min="1" onchange="app().updateQuantity(${item.id}, this.value - ${item.quantity})">
+                                <button onclick="app().updateQuantity(${item.id}, 1)">+</button>
+                            </td>
+                            <td>${total} ZAR</td>
+                            <td>
+                                <button onclick="app().removeFromCart(${item.id})">Remove</button>
+                            </td>
+                        `;
+                        cartItemsContainer.appendChild(cartItem);
+                    });
+                },
+                renderFeaturedPizzas() {
+                    const featuredPizzaListContainer = document.getElementById('featured-pizza-list');
+                    featuredPizzaListContainer.innerHTML = '';
+                    this.featuredPizzas.forEach(pizza => {
+                        const featuredPizzaItem = document.createElement('div');
+                        featuredPizzaItem.classList.add('featured-pizza-item');
+                        featuredPizzaItem.innerHTML = `
+                            <div>${pizza.flavour}</div>
+                            <div>${pizza.size}</div>
+                            <div>${pizza.price} ZAR</div>
+                            <img src="${pizza.imageUrl}" alt="${pizza.flavour}" />
+                            <button onclick="app().addToCart(${pizza.id}, '${pizza.flavour}', '${pizza.size}', ${pizza.price})">Add to Cart</button>
+                        `;
+                        featuredPizzaListContainer.appendChild(featuredPizzaItem);
+                    });
+                },
+                renderPizzaList() {
+                    const pizzaListContainer = document.getElementById('pizza-list');
+                    pizzaListContainer.innerHTML = '';
+                    this.pizzas.forEach(pizza => {
+                        const pizzaItem = document.createElement('div');
+                        pizzaItem.classList.add('pizza-item');
+                        pizzaItem.innerHTML = `
+                            <img src="${pizza.imageUrl}" alt="${pizza.flavour}" />
+                            <div>${pizza.flavour}</div>
+                            <div>${pizza.size}</div>
+                            <div>${pizza.price} ZAR</div>
+                            <button onclick="app().addToCart(${pizza.id}, '${pizza.flavour}', '${pizza.size}', ${pizza.price})">Add to Cart</button>
+                            <button class="feature-button" onclick="app().featurePizza(${pizza.id})">Feature</button>
+                        `;
+                        pizzaListContainer.appendChild(pizzaItem);
+                    });
+                },
+                init() {
+                    fetch('https://pizza-api.projectcodex.net/api/pizzas')
+                        .then(response => response.json())
+                        .then(data => {
+                            this.pizzas = data.pizzas;
+                            this.renderPizzaList();
+                            this.renderFeaturedPizzas();
+                        })
+                        .catch(error => console.error('Error fetching pizzas:', error));
+                },
+                featurePizza(id) {
+                    const pizza = this.pizzas.find(item => item.id === id);
+                    if (pizza) {
+                        if (!this.featuredPizzas.find(p => p.id === id)) {
+                            this.featuredPizzas.push(pizza);
+                            this.renderFeaturedPizzas();
+                        }
+                        alert(`Pizza ${pizza.flavour} has been featured!`);
+                    } else {
+                        alert('Pizza not found.');
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>

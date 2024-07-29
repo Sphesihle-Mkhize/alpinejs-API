@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login Page</title>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.2.3/dist/cdn.min.js" defer></script>
+</head>
+<body>
+    <div x-data="auth">
+        <h1>Login Page</h1>
+        <input type="text" x-model="username" placeholder="Enter username">
+        <input type="password" x-model="password" placeholder="Enter password">
+        <button @click="login">Login</button>
+        <p x-show="showErrorMessage" style="color: red;" x-text="errorMessage"></p>
+    </div>
+
+    <script>
+        function auth() {
+            return {
+                username: '',
+                password: '',
+                errorMessage: '',
+                showErrorMessage: false,
+
+                login() {
+                    fetch('https://pizza-api.projectcodex.net/api/auth/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username: this.username, password: this.password })
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.status === 'success') {
+                                window.location.href = 'index.html'; // Redirect to cart page
+                            } else {
+                                this.errorMessage = data.message;
+                                this.showErrorMessage = true;
+                            }
+                        });
+                }
+            }
+        }
+    </script>
+</body>
+</html>
